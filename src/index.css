@@ -1,0 +1,220 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
+
+/* body {
+  margin: 0; 
+  align-items: center;
+  justify-content: center;
+  min-width: 320px;
+  min-height: 100vh; 
+  padding: 20px;
+  box-sizing: border-box;
+ 
+} */
+html, body {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  height: 100%; /* מאפשר לגובה של 100vh לעבוד */
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+}
+.app {
+  background-image: url('/ash.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 999px;    
+  display: flex;
+  flex-direction: column;
+  align-items: center;  
+  width: 100%; 
+}
+
+
+.header {
+  background-color: #f5f7fa; /* צבע רקע רך ונעים */
+  color: #34495e; /* גוון כהה, אך רך לטקסט */
+  text-align: center;
+  padding: 15px 20px; /* קצת יותר רווחים */
+  border-bottom: 2px solid #ecf0f1; /* קו תחתון עדין */
+  font-family: 'Roboto', sans-serif; /* שמירה על הפונט המודרני */
+  font-size: 26px; /* טקסט מעט גדול יותר */
+  font-weight: bold; /* מוסיף דגש לכותרת */
+  border-radius: 6px; /* פינות רכות */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* צל עדין */
+  transition: all 0.3s ease; /* אפקט מעבר */
+}
+
+/* אפקט כשהמשתמש עובר עם העכבר */
+.header:hover {
+  background-color: #eaf0f5; /* שינוי צבע רקע */
+  color: #2c3e50; /* גוון כהה יותר לטקסט */
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2); /* צל חזק יותר */
+}
+.card-Places-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  padding: 20px;
+  background-color: #f8f9fa;
+}
+
+.card-Places {
+  background-color: #ffffff;
+  direction: rtl; /* כיוון ימין לשמאל */
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%; /* רוחב דינמי שמתאמת למסך */
+  max-width: 500px; /* מקסימום רוחב של 500px */
+  height: auto; /* גובה אוטומטי כדי להתאים לגובה התוכן */
+  display: flex;
+  justify-content: flex-start; /* מיקום התוכן מימין לשמאל */
+  align-items: flex-start; /* מיקום התוכן בחלק העליון של הכרטיס */
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  color: #333333;
+  padding: 16px; /* רווח פנימי */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* אפקט ריחוף */
+.card-Places:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+
+
+.pass{
+  border-top:8px solid #201e1e;
+  margin-top: 10px;    
+  width: 90%;
+  margin-bottom: 10px;
+  
+}
+.btn-refresh{
+  background-color: #cfd6e4;
+  color: white;
+  border: none;
+  width: 10%;
+  display: flex;
+  border-radius: 4px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  padding: 10px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  color: #201e1e;
+}
+.btn-qeurys{
+  background-color: #cfd6e4;
+  color: white;
+  border: none;
+  width: 50%;
+  display: flex;
+  border-radius: 4px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.select-container {  
+  flex-direction: column; 
+  align-items: flex-start; 
+  gap: 10px; 
+  width: 89%; 
+  padding: 10px; 
+  background-color: #f9f9f9; 
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 12px;
+}
+
+
+
+
+
+.select-container .MuiSelect-icon {
+  color: #333; 
+}
+
+.select-container .MuiInputBase-root {
+  padding: 0; 
+}
+
+
+.btn-map-l{
+  width: 90%;
+  display: flex;
+  justify-content: space-around;
+  margin: 10px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  
+  color: white;
+  cursor: pointer;
+}
+.btn-graf{
+  width: 90%;
+  height: 50px;
+  display: flex;
+  justify-content: space-around;
+  margin: 10px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background-color: #ff7979;
+  color: white;
+  cursor: pointer;
+}
+.input-renge{
+  display: flex;
+  width: 60%;
+  justify-content: space-around;
+}
+.inp-btn{
+  display: flex;
+  flex-direction: column;
+}
+.btn-fetch{
+  background-color: #61dafb;
+ 
+
+  
+}
+.background-container {
+  background-image: url('/xavi.jpg');
+  background-size: cover;
+  background-position: center;
+  height: 500px; /* גובה מוגדר */
+}
+.custom-chart {
+  height: 600px;
+  width: 100%;
+  margin-top: 100px;
+}
+
+.leaflet-container {
+  margin-top: 120px;
+  width: 50%; 
+  border-radius: 10px;  
+}
+
+
