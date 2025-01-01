@@ -5,8 +5,9 @@ import { useState } from 'react'
 import { Box, Button, Drawer } from '@mui/material'
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import Places from './componnets/Places';
-import Restaurants from './componnets/Restaurants';
-import Pay from './componnets/Pay';
+import Images from './componnets/images';
+import ExpensesTable from './componnets/Pay';
+import KosherRestaurants from './componnets/Restaurants';
 
 
 function App() {
@@ -25,6 +26,9 @@ function App() {
   const handleNavigCrudPay = () => {
     navigate('/Pay');
   }
+  const handleNavigImages = () => {
+    navigate('/Images');
+  }
  
 
   return (
@@ -33,9 +37,9 @@ function App() {
       <h1 className='header'>משפחת דרוק 2025 הונגריה</h1>  
       <Routes>
         <Route path="/Places" element={<Places />} />
-        <Route path="/Restaurants" element={<Restaurants />} />
-        <Route path="/Pay" element={<Pay />} />
-        
+        <Route path="/Restaurants" element={<KosherRestaurants />} />
+        <Route path="/Pay" element={<ExpensesTable />} />
+        <Route path="/Images" element={<Images />} />        
       </Routes>
       </div>
       <Button variant="contained" onClick={handleToggleDrawer} sx={{ position: 'absolute', top: 20, left: 20 }}>
@@ -62,6 +66,13 @@ function App() {
             sx={{ mb: 2 }} 
           >
             מקומות שחייבים להיות
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleNavigImages}
+            sx={{ mb: 2 }} 
+          >
+            תמונות 
           </Button>
           <Button
             variant="contained"
