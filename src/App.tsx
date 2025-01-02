@@ -18,15 +18,19 @@ function App() {
     setOpen(!open);
   };
   const handleNavigatePlaces = () => {
+    setOpen(!open)
     navigate('/Places'); 
   };
   const handleNavigateRestaurants = () => {
+    setOpen(!open)
     navigate('/Restaurants'); 
   };
   const handleNavigCrudPay = () => {
+    setOpen(!open)
     navigate('/Pay');
   }
   const handleNavigImages = () => {
+    setOpen(!open)
     navigate('/Images');
   }
  
