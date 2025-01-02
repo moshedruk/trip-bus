@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import ImageModel from "../models/image.model";
+import ExpensesByDay from "../models/expenses.model";
 // import { createAttack2, deleteAttackById, updateAttackById } from "../controller/crud";
 // import { DTOnewLocattion } from "../DTOs/newLocation";
 // import { updateForceLocationService } from "../services/forceService";
@@ -41,48 +42,30 @@ export const setupSocketIO = (io: Server): void => {
         console.error("Error fetching images:", error);
       }
     });
-    // // עדכון מיקום
-    // socket.on("newTeror", async (data: any, callback) => {
-    //     try {
-    //       const newTerror = await createAttack2(data);
-    //       console.log(newTerror);
-    //       callback({
-    //         success: true,
-    //         message: "Event created successfully",
-    //         result: newTerror,
-    //       });
-    //       io.emit("newatack", newTerror)
-    //     } catch (error) {
-    //       callback({ success: false, error: (error as Error).message });
-    //     }
-    //   });
+    socket.on("update-expenses", async (data) => {
+      const { day, category, value } = data;
+      const document = await ExpensesByDay.findOneAndUpdate(
+        { day },
+        { $set: { [`expenses.${category}`]: value } },
+        { upsert: true, new: true }
+      );
+      io.emit("expenses-updated", document); // שידור לכל הלקוחות
+    });
+  
+    socket.on("add-day", async (newDay) => {
+      const newDocument = new ExpensesByDay({
+        day: newDay,
+        expenses: { food: 0, lodging: 0, shopping: 0, travel: 0, other: 0 },
+      });
+      await newDocument.save();
+      io.emit("day-added", newDocument);
+    });
+  
+  
     
-    // socket.on("delete", async (id:any ,callback)  => {
-    //   try {
-    //     const updatedMission = await deleteAttackById(id)    
-    //     callback({ success: true, message: "Attack deleted successfully"})       
-    //     io.emit("mission_updated", updatedMission);
-    //     console.log("updated",updatedMission,"updated")
-    //   } catch (err) {
-    //     console.error(err);
-    //     callback({ success: false, error: (err as Error).message });        
-    //   }
-    // });
-
-    // socket.on("update", async ( id, data,callback ) => {
-    //   try {
-    //     const updatedMission = await updateAttackById(id,data);
-    //     callback({ success: true, message: "Attack updated successfully" });
-    //     io.emit("mission_updated", updatedMission);
-    //   } catch (err) {
-    //     console.error(err);
-    //     callback({ success: false, error: (err as Error).message });
-    //   }
-    // });
-
     // ניתוק
     socket.on("disconnect", () => {
       console.log(`user disconnected ${socket.id}`);
     });
-  });
-};
+  })}
+

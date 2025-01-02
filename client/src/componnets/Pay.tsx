@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import {
   Table,
   TableBody,
@@ -11,9 +11,13 @@ import {
   Typography,
   Box,
   TableFooter,
+  Button,
 } from "@mui/material";
+import { socket } from "../main";
 
-// מייצג את הקטגוריות של ההוצאות ביום אחד
+
+
+
 interface ExpenseCategories {
   food: number;
   lodging: number;
@@ -22,12 +26,10 @@ interface ExpenseCategories {
   other: number;
 }
 
-// מייצג את ההוצאות לפי ימות השבוע
 interface ExpensesByDay {
   [day: string]: ExpenseCategories;
 }
 
-// קבוע של הוצאות ראשוניות
 const initialExpenses: ExpensesByDay = {
   Monday: { food: 0, lodging: 0, shopping: 0, travel: 0, other: 0 },
   Tuesday: { food: 0, lodging: 0, shopping: 0, travel: 0, other: 0 },
@@ -35,19 +37,28 @@ const initialExpenses: ExpensesByDay = {
   Thursday: { food: 0, lodging: 0, shopping: 0, travel: 0, other: 0 },
 };
 
-// קבוע של תקציב ראשוני
 const initialBudget: number = 1000;
 
 export default function ExpensesTable(): JSX.Element {
   const [expenses, setExpenses] = useState<ExpensesByDay>(initialExpenses);
-  const budget: number = initialBudget;
+  const [budget, setBudget] = useState<number>(initialBudget);
 
-  /**
-   * פונקציה לעדכון ההוצאות עבור יום וקטגוריה מסוימת
-   * @param day היום לעדכון
-   * @param category הקטגוריה לעדכון
-   * @param value הערך החדש
-   */
+  useEffect(() => {
+    // התחברות לשרת ועדכון ההוצאות הראשוניות
+    socket.on("expenses-updated", (updatedExpenses: ExpensesByDay) => {
+      setExpenses(updatedExpenses);
+    });
+
+    socket.on("day-added", (newDay: { day: string; categories: ExpenseCategories }) => {
+      setExpenses((prev) => ({ ...prev, [newDay.day]: newDay.categories }));
+    });
+
+    return () => {
+      socket.off("expenses-updated");
+      socket.off("day-added");
+    };
+  }, []);
+
   const handleInputChange = (
     day: string,
     category: keyof ExpenseCategories,
@@ -56,27 +67,23 @@ export default function ExpensesTable(): JSX.Element {
     const newExpenses: ExpensesByDay = { ...expenses };
     newExpenses[day][category] = Number(value);
     setExpenses(newExpenses);
+    socket.emit("update-expenses", { day, category, value: Number(value) });
   };
 
-  /**
-   * מחשבת את סך ההוצאות עבור יום מסוים
-   * @param day היום לחישוב
-   * @returns הסכום של כל הקטגוריות עבור היום
-   */
+  const addNewDay = (): void => {
+    const newDayName = prompt("Enter the name of the new day:");
+    if (newDayName) {
+      const newDay = { day: newDayName, categories: { food: 0, lodging: 0, shopping: 0, travel: 0, other: 0 } };
+      socket.emit("add-day", newDay);
+    }
+  };
+
   const calculateDailyTotal = (day: string): number =>
     Object.values(expenses[day]).reduce((total, value) => total + value, 0);
 
-  /**
-   * מחשבת את סך ההוצאות הכולל עבור כל הימים
-   * @returns סך ההוצאות הכולל
-   */
   const calculateTotalExpenses = (): number =>
-    Object.keys(expenses).reduce(
-      (total, day) => total + calculateDailyTotal(day),
-      0
-    );
+    Object.keys(expenses).reduce((total, day) => total + calculateDailyTotal(day), 0);
 
-  // חישוב התקציב הנותר
   const remainingBudget: number = budget - calculateTotalExpenses();
 
   return (
@@ -84,6 +91,9 @@ export default function ExpensesTable(): JSX.Element {
       <Typography variant="h4" gutterBottom>
         Weekly Expenses Tracker
       </Typography>
+      <Button variant="contained" color="primary" onClick={addNewDay} sx={{ marginBottom: "20px" }}>
+        Add New Day
+      </Button>
       <TableContainer component={Paper} sx={{ maxWidth: 900, margin: "0 auto" }}>
         <Table>
           <TableHead>
