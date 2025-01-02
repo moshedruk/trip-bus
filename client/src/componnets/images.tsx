@@ -1,17 +1,78 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Button, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { socket } from "../main";
+
+interface Image {
+  fileName: string;
+  filePath: string; // Base64
+}
 
 export default function Images() {
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<Image[]>([]);
+  
+  useEffect(() => {
+    socket.emit("getAllImages");
+
+    // קבלת התמונות מהשרת
+    socket.on("allImage", (imageResponses: any[]) => {
+      // עדכון התמונות שהתקבלו ל-state
+      const imageObjects = imageResponses.map((image: any) => ({
+        fileName: image.fileName,
+        filePath: `data:image/png;base64,${image.filePath}`, // הצגת ה-Base64 כ-Data URL
+      }));
+      setImages(imageObjects);
+    });
+
+    // ניקוי כאשר הרכיב מבוטל
+    return () => {
+      socket.off("allImage");
+    };
+  }, []);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      const newImages = Array.from(files).map((file) => URL.createObjectURL(file));
-      setImages((prevImages) => [...prevImages, ...newImages]);
+      const newImages = Array.from(files).map((file) => {
+        const reader = new FileReader();
+  
+        return new Promise<string>((resolve, reject) => {
+          reader.onloadend = () => {
+            const base64 = reader.result as string;
+            resolve(base64); // קבלת ה-Base64 של התמונה
+          };
+  
+          reader.onerror = reject;
+          reader.readAsDataURL(file); // טוען את הקובץ כ-Base64
+        });
+      });
+  
+      // שלח את הקובץ לשרת כ-Binary Data
+      Array.from(files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const buffer = reader.result as ArrayBuffer;
+          socket.emit("fileUploaded", buffer); // שלח את הקובץ לשרת
+        };
+        reader.readAsArrayBuffer(file);
+      });
+  
+      // כאשר כל התמונות נטענו
+      Promise.all(newImages)
+  .then((base64Images) => {
+    const newImageObjects = base64Images.map((base64, index) => ({
+      fileName: files[index].name,
+      filePath: base64,
+    }));
+    setImages((prevImages) => [...prevImages, ...newImageObjects]);
+  })
+  .catch((error) => {
+    console.error("Error reading image files", error);
+  });
     }
   };
+  
+
 
   const handleImageDelete = (indexToDelete: number) => {
     setImages((prevImages) => prevImages.filter((_, index) => index !== indexToDelete));
@@ -36,7 +97,7 @@ export default function Images() {
           justifyContent: "center",
         }}
       >
-        {images.map((src, index) => (
+        {images.map((image, index) => (
           <Box
             key={index}
             sx={{
@@ -51,7 +112,7 @@ export default function Images() {
           >
             {/* תמונה */}
             <img
-              src={src}
+              src={image.filePath}
               alt={`Uploaded ${index}`}
               style={{
                 width: "100%",

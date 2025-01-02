@@ -1,4 +1,5 @@
 import { Server } from "socket.io";
+import ImageModel from "../models/image.model";
 // import { createAttack2, deleteAttackById, updateAttackById } from "../controller/crud";
 // import { DTOnewLocattion } from "../DTOs/newLocation";
 // import { updateForceLocationService } from "../services/forceService";
@@ -8,7 +9,38 @@ export const setupSocketIO = (io: Server): void => {
   io.on("connection", (socket) => {
     console.log(`user connected ${socket.id}`);
 
+    socket.on("fileUploaded", async (formData) => {
+      
+      const imageDoc = new ImageModel({
+        fileName:"image",
+        filePath: formData,
+        fileSize: formData.length,
+        uploadDate: new Date(),
+      });
     
+      await imageDoc.save();  // שמירה במונגו
+      console.log("Image uploaded and saved successfully");
+      
+      console.log(formData); // כאן תוכל לטפל בקובץ, לשמור אותו וכו'
+    });
+
+
+    socket.on("getAllImages", async () => {
+      try {
+        const images = await ImageModel.find(); // משיג את כל התמונות מהדאטה בייס
+  
+        // המרת Buffer ל-Base64 והחזרת המידע
+        const imageResponses = images.map((image) => ({
+          fileName: image.fileName,
+          filePath: image.filePath.toString('base64'), // המרת ה-Buffer ל-Base64
+        }));
+  
+        // שליחה ללקוח
+        io.emit("allImage", imageResponses);
+      } catch (error) {
+        console.error("Error fetching images:", error);
+      }
+    });
     // // עדכון מיקום
     // socket.on("newTeror", async (data: any, callback) => {
     //     try {
