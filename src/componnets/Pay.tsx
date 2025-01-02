@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import {
   Table,
   TableBody,
@@ -13,32 +13,71 @@ import {
   TableFooter,
 } from "@mui/material";
 
-const initialExpenses = {
+// מייצג את הקטגוריות של ההוצאות ביום אחד
+interface ExpenseCategories {
+  food: number;
+  lodging: number;
+  shopping: number;
+  travel: number;
+  other: number;
+}
+
+// מייצג את ההוצאות לפי ימות השבוע
+interface ExpensesByDay {
+  [day: string]: ExpenseCategories;
+}
+
+// קבוע של הוצאות ראשוניות
+const initialExpenses: ExpensesByDay = {
   Monday: { food: 0, lodging: 0, shopping: 0, travel: 0, other: 0 },
   Tuesday: { food: 0, lodging: 0, shopping: 0, travel: 0, other: 0 },
   Wednesday: { food: 0, lodging: 0, shopping: 0, travel: 0, other: 0 },
   Thursday: { food: 0, lodging: 0, shopping: 0, travel: 0, other: 0 },
 };
 
-const initialBudget = 1000;
+// קבוע של תקציב ראשוני
+const initialBudget: number = 1000;
 
-export default function ExpensesTable() {
-  const [expenses, setExpenses] = useState(initialExpenses);
-  const [budget, setBudget] = useState(initialBudget);
+export default function ExpensesTable(): JSX.Element {
+  const [expenses, setExpenses] = useState<ExpensesByDay>(initialExpenses);
+  const budget: number = initialBudget;
 
-  const handleInputChange = (day:any, category:any, value:any) => {
-    const newExpenses = { ...expenses };
+  /**
+   * פונקציה לעדכון ההוצאות עבור יום וקטגוריה מסוימת
+   * @param day היום לעדכון
+   * @param category הקטגוריה לעדכון
+   * @param value הערך החדש
+   */
+  const handleInputChange = (
+    day: string,
+    category: keyof ExpenseCategories,
+    value: string
+  ): void => {
+    const newExpenses: ExpensesByDay = { ...expenses };
     newExpenses[day][category] = Number(value);
     setExpenses(newExpenses);
   };
 
-  const calculateDailyTotal = (day:any) =>
+  /**
+   * מחשבת את סך ההוצאות עבור יום מסוים
+   * @param day היום לחישוב
+   * @returns הסכום של כל הקטגוריות עבור היום
+   */
+  const calculateDailyTotal = (day: string): number =>
     Object.values(expenses[day]).reduce((total, value) => total + value, 0);
 
-  const calculateTotalExpenses = () =>
-    Object.keys(expenses).reduce((total, day) => total + calculateDailyTotal(day), 0);
+  /**
+   * מחשבת את סך ההוצאות הכולל עבור כל הימים
+   * @returns סך ההוצאות הכולל
+   */
+  const calculateTotalExpenses = (): number =>
+    Object.keys(expenses).reduce(
+      (total, day) => total + calculateDailyTotal(day),
+      0
+    );
 
-  const remainingBudget = budget - calculateTotalExpenses();
+  // חישוב התקציב הנותר
+  const remainingBudget: number = budget - calculateTotalExpenses();
 
   return (
     <Box sx={{ padding: "20px" }}>
@@ -67,8 +106,14 @@ export default function ExpensesTable() {
                     <TextField
                       type="number"
                       size="small"
-                      value={expenses[day][category]}
-                      onChange={(e) => handleInputChange(day, category, e.target.value)}
+                      value={expenses[day][category as keyof ExpenseCategories]}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        handleInputChange(
+                          day,
+                          category as keyof ExpenseCategories,
+                          e.target.value
+                        )
+                      }
                     />
                   </TableCell>
                 ))}
